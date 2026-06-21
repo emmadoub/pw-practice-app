@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { tooltip } from 'leaflet'
+import { NavigationPage } from '../page-objects/navigationPage'
 
 test.beforeEach(async ({ page }) => {
     await page.goto('http://localhost:4200/')
@@ -8,8 +9,8 @@ test.beforeEach(async ({ page }) => {
 test.describe('Form Layouts page', () => {
 
     test.beforeEach(async ({ page }) => {
-        await page.getByText('Forms').click()
-        await page.getByText('Form Layouts').click()
+        const navigateTo = new NavigationPage(page)
+        await navigateTo.formLayoutsPage()
     })
 
     test('input fields', async ({ page }) => {
@@ -44,8 +45,8 @@ test.describe('Form Layouts page', () => {
 
 test('checkboxes', async ({ page }) => {
 
-    await page.getByText('Modal & Overlays').click()
-    await page.getByText('Toastr').click()
+    const navigateTo = new NavigationPage(page)
+    await navigateTo.toastrPage()
     await page.getByRole('checkbox', { name: 'Hide on click' }).click({ force: true }) //check/uncheck
     await page.getByLabel('Prevent arising of duplicate toast').check({ force: true }) //only check
     await page.getByLabel('Show toast with icon').uncheck({ force: true }) //only uncheck
@@ -92,8 +93,8 @@ test('Lists and Dropdowns', async ({ page }) => {
 
 
 test('tooltips', async ({ page }) => {
-    await page.getByText("Modal & Overlays").click()
-    await page.getByText("Tooltip").click()
+    const navigateTo = new NavigationPage(page)
+    await navigateTo.tooltipPage()
 
     const toolTipCard = page.locator('nb-card', { hasText: "Tooltip Placements" })
     await toolTipCard.getByRole("button", { name: "Top" }).hover()
@@ -105,8 +106,8 @@ test('tooltips', async ({ page }) => {
 
 
 test('dialog box', async ({ page }) => {
-    await page.getByText("Tables & Data").click()
-    await page.getByText("Smart Table").click()
+    const navigateTo = new NavigationPage(page)
+    await navigateTo.smartTablePage()
 
     page.on('dialog', dialog => {
         expect(dialog.message()).toEqual('Are you sure you want to delete?')
@@ -119,8 +120,8 @@ test('dialog box', async ({ page }) => {
 })
 
 test('web tables', async ({ page }) => {
-    await page.getByText("Tables & Data").click()
-    await page.getByText("Smart Table").click()
+    const navigateTo = new NavigationPage(page)
+    await navigateTo.smartTablePage()
 
     //1 get the row by any text in this row 
 
@@ -157,37 +158,37 @@ test('web tables', async ({ page }) => {
         }
     }
 
-    })
+})
 
-    test('datepicker', async({page})=>{
-        await page.getByText('Forms').click()
-        await page.getByText('Datepicker').click()
+test('datepicker', async ({ page }) => {
+    const navigateTo = new NavigationPage(page)
+    await navigateTo.datepickerPage()
 
-        const calendarInputField = page.getByPlaceholder('Form Picker')
-        await calendarInputField.click()
+    const calendarInputField = page.getByPlaceholder('Form Picker')
+    await calendarInputField.click()
 
-        let date = new Date()
-        date.setDate(date.getDate() + 7)
-        const expectedDate = date.getDate().toString()
-        const expectedMonthShort = date.toLocaleString('En-US', {month: 'short'})
-        const expectedMonthLong = date.toLocaleString('En-US', {month: 'long'})
-        const expectedYear = date.getFullYear()
-        const dateToAssert = `${expectedMonthShort} ${expectedDate}, ${expectedYear}`
+    let date = new Date()
+    date.setDate(date.getDate() + 7)
+    const expectedDate = date.getDate().toString()
+    const expectedMonthShort = date.toLocaleString('En-US', { month: 'short' })
+    const expectedMonthLong = date.toLocaleString('En-US', { month: 'long' })
+    const expectedYear = date.getFullYear()
+    const dateToAssert = `${expectedMonthShort} ${expectedDate}, ${expectedYear}`
 
-        let calendarMonthAndYear = await page.locator('nb-calendar-view-mode').textContent()
-        const expectedMonthAndYear = `${expectedMonthLong} ${expectedYear}`
-        while(!calendarMonthAndYear?.includes(expectedMonthAndYear)){
-            await page.locator('nb-calendar-pageable-navigation [data-name="chevron-right"]').click()
-            calendarMonthAndYear = await page.locator('nb-calendar-view-mode').textContent()
-        }
+    let calendarMonthAndYear = await page.locator('nb-calendar-view-mode').textContent()
+    const expectedMonthAndYear = `${expectedMonthLong} ${expectedYear}`
+    while (!calendarMonthAndYear?.includes(expectedMonthAndYear)) {
+        await page.locator('nb-calendar-pageable-navigation [data-name="chevron-right"]').click()
+        calendarMonthAndYear = await page.locator('nb-calendar-view-mode').textContent()
+    }
 
-        await page.locator('[class="day-cell ng-star-inserted"]').getByText(expectedDate, {exact: true}).click()
-        await expect(calendarInputField).toHaveValue(dateToAssert)
-    
+    await page.locator('[class="day-cell ng-star-inserted"]').getByText(expectedDate, { exact: true }).click()
+    await expect(calendarInputField).toHaveValue(dateToAssert)
+
 
 })
 
-test('sliders', async({page})=>{
+test('sliders', async ({ page }) => {
     //Update attribute
     /*const tempGauge = page.locator('[tabtitle="Temperature"] ngx-temperature-dragger circle')
     await tempGauge.evaluate( node => {
@@ -205,10 +206,10 @@ test('sliders', async({page})=>{
     const x = box!.x + box!.width / 2
     const y = box!.y + box!.height / 2
 
-    await page.mouse.move(x,y)
+    await page.mouse.move(x, y)
     await page.mouse.down()
-    await page.mouse.move(x+100,y)
-    await page.mouse.move(x+100,y+100)
+    await page.mouse.move(x + 100, y)
+    await page.mouse.move(x + 100, y + 100)
     await page.mouse.up()
     await expect(tempBox).toContainText('30')
 
